@@ -168,11 +168,13 @@
   (send-prolog-query-1 (create-rdf-assert-query a b c)))
 
 (defun send-object-action-parameter (action-inst object-designator)
-  (let ((object-instance-id (symbol-name (desig:desig-prop-value object-designator :NAME))))
-    (when (not (string-equal object-instance-id "nil"))
-      (progn
-        (send-rdf-query (convert-to-prolog-str action-inst) "knowrob:objectActedOn" (convert-to-prolog-str object-instance-id))
-        object-instance-id))))
+  (when  (typep object-designator 'desig:object-designator) 
+    (let ((object-instance-id (symbol-name (desig:desig-prop-value object-designator :NAME))))
+      (if (not (string-equal object-instance-id "nil"))
+          (progn
+            (send-rdf-query (convert-to-prolog-str action-inst) "knowrob:objectActedOn" (convert-to-prolog-str object-instance-id))
+            object-instance-id))
+      "UnknownObjectName")))
 
 (defun get-object-name (object-name)
   (if (eq (search "|" object-name) 1)

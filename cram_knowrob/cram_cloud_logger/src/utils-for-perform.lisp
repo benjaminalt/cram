@@ -127,8 +127,43 @@
   (send-cram-finish-action
    (convert-to-prolog-str action-id ) (get-timestamp-for-logging)))
 
+(defmethod exe:perform :around ((designator desig:motion-designator))
+  (if *is-logging-enabled*
+      (let ((action-id (log-perform-call designator)))
+        (cpl:with-failure-handling
+            ((cpl:plan-failure (e)
+               (log-cram-finish-action action-id)
+               (send-task-success action-id "false")
+               (format t "failure string: ~a" (write-to-string e))))
+          (let ((perform-result (call-next-method)))
+            (log-cram-finish-action action-id)
+            (when (and perform-result (typep perform-result 'desig:object-designator))
+              (let ((name (desig:desig-prop-value perform-result :name)))
+                (when name
+                  (send-object-action-parameter action-id perform-result))))
+            (send-task-success action-id "true")
+            perform-result)))
+      (call-next-method)))
 
 (defmethod exe:perform :around ((designator desig:action-designator))
+  (if *is-logging-enabled*
+      (let ((action-id (log-perform-call designator)))
+        (cpl:with-failure-handling
+            ((cpl:plan-failure (e)
+               (log-cram-finish-action action-id)
+               (send-task-success action-id "false")
+               (format t "failure string: ~a" (write-to-string e))))
+          (let ((perform-result (call-next-method)))
+            (log-cram-finish-action action-id)
+            (when (and perform-result (typep perform-result 'desig:object-designator))
+              (let ((name (desig:desig-prop-value perform-result :name)))
+                (when name
+                  (send-object-action-parameter action-id perform-result))))
+            (send-task-success action-id "true")
+            perform-result)))
+      (call-next-method)))
+
+(defmethod perform-with-logging (designator)
   (if *is-logging-enabled*
       (let ((action-id (log-perform-call designator)))
         (cpl:with-failure-handling
