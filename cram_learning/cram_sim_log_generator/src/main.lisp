@@ -13,7 +13,6 @@
                      (concatenate 'string
                                   "~/projection-experiments/" experiment-id "/")))
                (ensure-directories-exist experiment-save-path)
-               (setq ccl::*prolog-query-save-path* experiment-save-path)
                (format t "Starting experiment ~a~%" experiment-id)
                (asdf-utils:run-program (concatenate 'string "rosrun mongodb_log mongodb_log -c " experiment-id " &"))
                (pr2-proj:with-simulated-robot (demo::demo-random))

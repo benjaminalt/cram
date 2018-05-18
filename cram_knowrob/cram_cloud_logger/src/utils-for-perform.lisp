@@ -40,10 +40,7 @@
             ((cpl:plan-failure (e)
                (log-cram-finish-action action-id)
                (send-task-success action-id "false")
-               (log-failure action-id e)
-               ;;(format t "failure string: ~a" (write-to-string e))
-               (if is-parent-action
-                   (send-batch-query))))
+               (log-failure action-id e)))
           (if cram-projection:*projection-environment*
             (send-performed-in-projection action-id "true")
             (send-performed-in-projection action-id "false"))
@@ -59,8 +56,6 @@
                 (when name
                   (send-object-action-parameter action-id perform-result))))
             (send-task-success action-id "true")
-            (if is-parent-action
-                   (send-batch-query))
             perform-result)))
       (call-next-method)))
 
